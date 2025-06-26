@@ -45,6 +45,35 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       environment used by SCons to initialize MSVC when defined.  None of
       these variables and values are propagated to the user's SCons
       environment after running the MSVC batch files.
+    - GitHub workflow changes:
+      * Add directory testing/ci for test runner files.  Move the existing
+        windows ci skip file from the SCons root to the ci testing directory.
+      * Remove the interactive tests from the windows ci skip file.
+      * Add an exclude test file for MacOS that skips the two ninja tests that
+        consistently fail.
+      * Add a test file containing one test for the MSVC optional environment
+        workflow.
+      * Modify the experimental workflow to pass the exclude test file as an
+        argument to the test runner for macos.
+      * Add a workflow file to test MSVC with the optional environment
+        variables.
+      * Add a script in the testing/ci directory to populate the MSVC
+        cache before running the test suite in select windows workflow files.
+        The experimental test suite and the full test suite workflow files
+        populate the MSVC cache before running the test suite on windows. The
+        script is also run after the test suite in the optional MSVC
+        environment variables workflow file to display the MSVC cache.
+      * Upload the failed_tests.log artifact on failure in select workflow
+        files. Prior to this change, the failed test log was uploaded only
+        when none of the tests failed.
+      * Modify the runtest workflow file to pair an OS version with a python
+        version.
+    - Ninja: Increase the number of generated source files in the ninja
+      iterative speedup test from 200 to 250. Increasing the workload should
+      reduce the likelihood that the ninja tests are slower.
+    - Testing: Increase the default timeout from 20 seconds to 60
+      seconds in the testing framework wait_for method.  At present, the
+      wait_for method is only used for the interactive tests.
 
   From Edward Peek:
     - Fix the variant dir component being missing from generated source file
@@ -55,6 +84,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       setting against both enable & disable strings. (Fixes #4702)
     - Extended unittests (crudely) to test for correct/expected response
       when default setting is a boolean string.
+
+  From Keith Prussing:
+    - Fixed LaTeX SCanner to mimic LaTeX's search behavior for included files.
 
   From Mats Wichmann:
     - Clean up C and C++ FLAGS tests. Tests which use a real compiler
@@ -69,8 +101,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       that can be rendered by Sphinx, and updating that text. The rest is
       minor fiddling like switching to f-strings small doc changes.
     - Fix a couple of unit tests to not fail with Python 3.14. These involve
-      bytecode and error message contents, and there was no problem with
-      SCons itself using 3.14 in its current (just-before-freeze) state.
+      bytecode strings and error message contents; there was no problem with
+      SCons itself using 3.14. Since 3.14 is now in Beta, there should
+      be no further changes.
     - Replace use of old conditional expression idioms with the official
       one from PEP 308 introduced in Python 2.5 (2006). The idiom being
       replaced (using and/or) is regarded as error prone.
@@ -100,10 +133,19 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Ninja tool generate_command() fixed to call subst() with correct
       arguments in ListAction case. Unit tests added for generate_command.
       Fixes #4580.
-
-  From Edward Peek:
-    - Fix the variant dir component being missing from generated source file
-      paths with CompilationDatabase() builder (Fixes #4003).
+    - Ninja tool now quotes targets (if necessary) when calling back to
+      SCons - both in the POST request constructed to contact the
+      daemon, and in the command eventually issued from the deamon.
+      Initial suggestion from Julien Pommier. Fixes #4730.
+    - Ninja tool is adjusted to recognize and emit the right rule in
+      the case of special actions that the tool recognizes, like Copy.
+      This was working in the case of single commands, but not when part
+      of a list of actions. Recognition only happens if the special
+      action is first in the list.  Initial suggestion from Julien Pommier.
+      Fixes #4731.
+    - Fix a test problem on Windows where UNC tests failed due to incorrect
+      path munging if a non-default %TEMP% was defined (as in moving to
+      a Dev Drive). Also some cleanup.
 
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700

@@ -61,6 +61,21 @@ FIXES
 - Ninja tool generate_command() fixed to call subst() with correct
   arguments in ListAction case. Unit tests added for generate_command.
 
+- Fix the SCons.Scanner.LaTeX to mimic LaTeX's search method.
+
+- Ninja tool now quotes targets (if necessary) when calling back to
+  SCons - both in the POST request constructed to contact the
+  daemon, and in the command eventually issued from the deamon.
+
+- Ninja tool is adjusted to recognize and emit the right rule in
+  the case of special actions that the tool recognizes, like Copy.
+  This was working in the case of single commands, but not when part
+  of a list of actions. Recognition only happens if the special
+  action is first in the list.
+
+- Fix a test problem on Windows where UNC tests failed due to incorrect path
+  munging if a non-default %TEMP% was defined (as in moving to a Dev Drive).
+
 IMPROVEMENTS
 ------------
 
@@ -119,9 +134,38 @@ DEVELOPMENT
 
 - Clean up C and C++ FLAGS tests. Tests which use a real compiler
   are now more clearly distinguished (-live.py suffix and docstring).
+
 - Fix a couple of unit tests to not fail with Python 3.14. These involve
-  expectations for bytecode and error message contents; there was no problem
-  with SCons itself using 3.14 in its current (just-before-freeze) state.
+  expectations for bytecode strings and error message contents; there was
+  no problem with SCons itself using 3.14.
+
+- Move the GitHub workflow test runner files from the SCons root to
+  the ci subdirectory of the testing directory.
+
+- GitHub: Enable the interactive tests on windows.
+
+- GitHub: Exclude two ninja tests that consistently fail on MacOS in
+  the experimental tests workflow.
+
+- GitHub: Add a workflow file to test MSVC with optional environment
+  variables.
+
+- GitHub: Populate the MSVC cache before running the test suite for
+  select windows workflow files.
+
+- GitHub: Upload the failed_tests.log artifact on failure in select
+  workflow files.
+
+- GitHub: Change the runtest workflow to allow the python version to
+  be specified with the OS version.
+
+- Testing: Increase the default timeout from 20 seconds to 60 seconds
+  in the testing framework wait_for method. The timeout was increased
+  during isolated experiments of the interactive tests on windows.
+
+- Ninja: Increase the number of generated source files in the
+  iterative speedup test from 200 to 250.  Increasing the workload
+  should reduce the likelihood that the ninja tests are slower.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
